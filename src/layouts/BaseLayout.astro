@@ -17,19 +17,17 @@ const base = import.meta.env.BASE_URL;
   </head>
   <body>
     <header class="site-header">
-      <a class="logo" href={base}>MyBlog</a>
       <nav class="nav">
         <a href={base}>一覧</a>
         <a href={`${base}tags/`}>タグ</a>
-        <a href={`${base}categories/`}>カテゴリ</a>
         <a href={`${base}rss.xml`}>RSS</a>
       </nav>
     </header>
 
-    <main class="page">{Astro.children}</main>
+    <main class="page">
+      <slot />
+    </main>
 
-    <footer class="site-footer">
-      <span>Markdownで書いてGitで育てる、雑多な知識メモ置き場。</span>
-    </footer>
+    <footer class="site-footer"></footer>
   </body>
 </html>

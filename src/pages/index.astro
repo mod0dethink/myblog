@@ -9,13 +9,9 @@ const posts = (await getCollection('posts'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<BaseLayout
-  title="MyBlog | 雑多な知識メモ"
-  description="言語/技術を中心に雑多な知識をMarkdownで残す個人メモ。"
->
+<BaseLayout title="sena blog">
   <section class="hero">
-    <h1>雑多な知識メモ置き場</h1>
-    <p>Markdownで書いてGitで管理。ビルド時に検索インデックスやタグ/カテゴリを自動生成します。</p>
+    <p>自分が気になったことをまとめてるだけです、需要があるかは知りません。</p>
   </section>
 
   <Search />
