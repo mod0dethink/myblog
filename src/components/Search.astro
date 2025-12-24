@@ -1,0 +1,81 @@
+<section class="search card">
+  <h3>検索</h3>
+  <input id="searchInput" type="search" placeholder="キーワードで全文検索" />
+  <div id="searchResults" class="search-results"></div>
+</section>
+
+<script type="module">
+  const base = import.meta.env.BASE_URL;
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+
+  let index = [];
+
+  const normalize = (value) =>
+    value
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim();
+
+  const render = (items, query) => {
+    if (!query) {
+      results.innerHTML = '';
+      return;
+    }
+
+    if (!items.length) {
+      results.innerHTML = '<div class="card">該当なし</div>';
+      return;
+    }
+
+    results.innerHTML = items
+      .map((item) => {
+        const tags = item.tags?.length
+          ? `<div class="tag-list">${item.tags
+              .map((tag) => `<span class="tag">${tag}</span>`)
+              .join('')}</div>`
+          : '';
+        return `
+          <article class="card">
+            <h3><a href="${base}posts/${item.slug}/">${item.title}</a></h3>
+            <div class="meta">
+              <span>${item.date}</span>
+              <span>カテゴリ: ${item.category}</span>
+            </div>
+            <p>${item.summary ?? ''}</p>
+            ${tags}
+          </article>
+        `;
+      })
+      .join('');
+  };
+
+  const search = (query) => {
+    const q = normalize(query);
+    if (!q) return [];
+
+    return index
+      .map((item) => {
+        const haystack = normalize(`${item.title} ${item.summary ?? ''} ${item.body ?? ''}`);
+        const score = haystack.includes(q) ? 1 : 0;
+        return { item, score };
+      })
+      .filter((row) => row.score > 0)
+      .map((row) => row.item);
+  };
+
+  fetch(`${base}search-index.json`)
+    .then((res) => res.json())
+    .then((data) => {
+      index = data;
+    })
+    .catch(() => {
+      results.innerHTML = '<div class="card">検索インデックスの読み込みに失敗しました。</div>';
+    });
+
+  input?.addEventListener('input', (event) => {
+    const query = event.target.value;
+    const matched = search(query).slice(0, 20);
+    render(matched, query.trim());
+  });
+</script>

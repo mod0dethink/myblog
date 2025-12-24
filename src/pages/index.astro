@@ -1,16 +1,28 @@
 ---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import Search from '../components/Search.astro';
 
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="MyBlog | 雑多な知識メモ"
+  description="言語/技術を中心に雑多な知識をMarkdownで残す個人メモ。"
+>
+  <section class="hero">
+    <h1>雑多な知識メモ置き場</h1>
+    <p>Markdownで書いてGitで管理。ビルド時に検索インデックスやタグ/カテゴリを自動生成します。</p>
+  </section>
+
+  <Search />
+
+  <section class="grid two">
+    {posts.map((post) => (
+      <PostCard post={post} />
+    ))}
+  </section>
+</BaseLayout>

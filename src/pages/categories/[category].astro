@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const categories = new Set();
+
+  for (const post of posts) {
+    if (post.data.draft) continue;
+    categories.add(post.data.category);
+  }
+
+  return Array.from(categories).map((category) => ({
+    params: { category: encodeURIComponent(category) },
+  }));
+}
+
+const category = decodeURIComponent(Astro.params.category);
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft)
+  .filter((post) => post.data.category === category);
+---
+
+<BaseLayout title={`カテゴリ: ${category} | MyBlog`} description={`${category} のメモ一覧`}>
+  <section class="hero">
+    <h1>カテゴリ: {category}</h1>
+    <p>該当するメモ一覧</p>
+  </section>
+
+  <section class="grid two">
+    {posts.map((post) => (
+      <PostCard post={post} />
+    ))}
+  </section>
+</BaseLayout>

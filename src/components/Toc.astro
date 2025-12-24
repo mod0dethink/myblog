@@ -1,0 +1,13 @@
+---
+const { headings = [] } = Astro.props;
+const items = headings.filter((item) => item.depth <= 3);
+---
+
+{items.length ? (
+  <aside class="toc">
+    <h3>目次</h3>
+    {items.map((item) => (
+      <a href={`#${item.slug}`}>{item.text}</a>
+    ))}
+  </aside>
+) : null}

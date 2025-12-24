@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import Toc from '../../components/Toc.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts
+    .filter((post) => !post.data.draft)
+    .map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const date = post.data.date.toLocaleDateString('ja-JP');
+---
+
+<BaseLayout title={`${post.data.title} | MyBlog`} description={post.data.summary}>
+  <div class="post-body">
+    <article>
+      <div class="meta">
+        <span>{date}</span>
+        <span>カテゴリ: {post.data.category}</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <TagList tags={post.data.tags} />
+      <Content />
+    </article>
+    <Toc headings={headings} />
+  </div>
+</BaseLayout>
