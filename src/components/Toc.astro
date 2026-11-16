@@ -1,0 +1,27 @@
+---
+const { headings = [], variant = 'side' } = Astro.props;
+const items = headings.filter((item) => item.depth <= 3);
+const minDepth = Math.min(...items.map((item) => item.depth));
+---
+
+{items.length ? (
+  variant === 'inline' ? (
+    <details class="toc toc-inline">
+      <summary>目次</summary>
+      <ul>
+        {items.map((item) => (
+          <li class={`depth-${item.depth - minDepth}`}><a href={`#${item.slug}`}>{item.text}</a></li>
+        ))}
+      </ul>
+    </details>
+  ) : (
+    <aside class="toc toc-side">
+      <p class="toc-title">目次</p>
+      <ul>
+        {items.map((item) => (
+          <li class={`depth-${item.depth - minDepth}`}><a href={`#${item.slug}`}>{item.text}</a></li>
+        ))}
+      </ul>
+    </aside>
+  )
+) : null}

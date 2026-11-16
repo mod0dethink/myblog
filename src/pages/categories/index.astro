@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts')).filter((post) => !post.data.draft);
+const categoryMap = new Map();
+
+for (const post of posts) {
+  const category = post.data.category;
+  categoryMap.set(category, (categoryMap.get(category) ?? 0) + 1);
+}
+
+const categories = Array.from(categoryMap.entries()).sort((a, b) => b[1] - a[1]);
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="カテゴリ一覧 | sena blog" description="カテゴリ別のメモ一覧">
+  <section class="hero">
+    <h1>カテゴリ</h1>
+    <p>興味の領域ごとにまとめています。</p>
+  </section>
+
+  <section class="term-list">
+    {categories.map(([category, count]) => (
+      <a class="term" href={`${base}categories/${encodeURIComponent(category)}/`}>
+        <span>{category}</span>
+        <span class="count">{count}</span>
+      </a>
+    ))}
+  </section>
+</BaseLayout>

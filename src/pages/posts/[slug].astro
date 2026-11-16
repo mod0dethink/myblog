@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import Toc from '../../components/Toc.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts
+    .filter((post) => !post.data.draft)
+    .map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const date = post.data.date.toLocaleDateString('ja-JP');
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={`${post.data.title} | sena blog`} description={post.data.summary} wide>
+  <div class="post-body">
+    <article class="post">
+      <header class="post-header">
+        <div class="meta">
+          <time datetime={post.data.date.toISOString()}>{date}</time>
+          <a href={`${base}categories/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a>
+        </div>
+        <h1>{post.data.title}</h1>
+        <TagList tags={post.data.tags} />
+      </header>
+      <Toc headings={headings} variant="inline" />
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+    <Toc headings={headings} />
+  </div>
+</BaseLayout>
